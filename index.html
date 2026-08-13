@@ -1,0 +1,421 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroid Dodger</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: rgb(24, 24, 24);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-user-drag: none;
+            color: white;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #start-h1 {
+            text-align: center;
+            margin-top: 180px;
+            z-index: 1000;
+            position: relative;
+        }
+
+        #game {
+            width: 100vw;
+            max-width: 400px;
+            height: 100vh;
+            max-height: 700px;
+            border: 2px solid rgb(47, 47, 47);
+            background: url('space-pixel-bg.png') repeat-y center top;
+            background-size: 100% auto;
+            animation: scrollBg 4.2s linear infinite;
+            animation-play-state: paused;
+            position: relative;
+        }
+
+        @keyframes scrollBg {
+            from {
+                background-position-y: 0px;
+            }
+
+            to {
+                background-position-y: 800px;
+            }
+        }
+
+        #rocket-container {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+        }
+
+        .rockets {
+            width: 100%;
+            height: auto;
+            display: none;
+        }
+
+        .astroid-div {
+            position: absolute;
+            width: 130px;
+            height: 130px;
+        }
+
+        .astroids {
+            width: 100%;
+            height: auto;
+            -webkit-user-drag: none;
+            user-select: none;
+        }
+
+        #hitbox2 {
+            z-index: 99;
+            width: 57px;
+            height: 52px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-46%, -50%);
+        }
+
+        #hitbox1 {
+            z-index: 99;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 54px;
+        }
+
+        #score {
+            margin: 15px;
+            z-index: 999;
+            position: absolute;
+            text-shadow: 3px 3px 4px black;
+        }
+    </style>
+
+    <script>
+        document.addEventListener("DOMContentLoaded", function () {
+            const container = document.getElementById("game");
+            const box = document.getElementById("rocket-container");
+            const rocket0 = document.getElementById("rocket0");
+            const start_h1 = document.getElementById("start-h1");
+
+            const rocket1 = document.getElementById("rocket1");
+            const rocket2 = document.getElementById("rocket2");
+            const rocket3 = document.getElementById("rocket3");
+
+            let generator = null;
+            let controller = null;
+            let scoreInterval = null;
+            let moveR = null;
+            let moveL = null;
+            let alternate = null;
+            let launch = null;
+            let spinInterval = null;
+            let activeControllers = [];
+
+            let end = false;
+
+            function game() {
+                container.style.animationPlayState = "running";
+
+                // Alternate rocket animation
+                function alternation() {
+                    let currentRocket = 1;
+
+                    alternate = setInterval(() => {
+                        rocket1.style.display = "none";
+                        rocket2.style.display = "none";
+                        rocket3.style.display = "none";
+
+                        if (currentRocket === 1) {
+                            rocket1.style.display = "block";
+                        } else if (currentRocket === 2) {
+                            rocket3.style.display = "block";
+                        } else if (currentRocket === 3) {
+                            rocket2.style.display = "block";
+                        }
+
+                        currentRocket++;
+                        if (currentRocket > 3) {
+                            currentRocket = 1;
+                        }
+                    }, 202);
+                }
+
+                alternation();
+
+                box.style.top = "70%";
+
+                let num = 10;
+                let isMovingRight = false;
+
+                box.style.left = num + "px";
+
+                function move() {
+                    if (end) return;
+
+                    clearInterval(moveR);
+                    clearInterval(moveL);
+
+                    // TOGGLE
+                    isMovingRight = !isMovingRight;
+
+                    if (isMovingRight) {
+                        // MOVE RIGHT INTERVAL
+                        box.style.transform = "rotate(9deg)";
+                        
+                        moveR = setInterval(() => {
+                            if (end) return;
+                            const maxLeft = container.clientWidth - box.offsetWidth - 10;
+                            num += 1;
+                            box.style.left = num + "px";
+
+                            if (num >= maxLeft) {
+                                clearInterval(moveR);
+                                box.style.transform = "rotate(0deg)";
+                            }
+                        }, 5);
+
+                    } else {
+                        // MOVE LEFT INTERVAL
+                        box.style.transform = "rotate(-9deg)";
+
+                        moveL = setInterval(() => {
+                            if (end) return;
+                            num -= 1;
+                            box.style.left = num + "px";
+
+                            if (num <= 10) {
+                                clearInterval(moveL);
+                                box.style.transform = "rotate(0deg)";
+                                num = 10;
+                                box.style.left = "10px";
+                            }
+                        }, 5);
+                    }
+                }
+
+                // astroids function
+                function astroids() {
+
+                    // astroid generator
+                    generator = setInterval(() => {
+                        const hitbox2 = document.createElement("div");
+                        hitbox2.id = "hitbox2";
+
+                        const astroid1 = document.createElement("div");
+                        astroid1.className = "astroid-div"; 
+                        astroid1.innerHTML = `<img src="astroid-pixel-1.png" alt="astroid" class="astroids">`;
+
+                        // Random X position
+                        const randomX = Math.floor(Math.random() * 3) * 120;
+                        astroid1.style.left = randomX + "px";
+                        
+                        container.appendChild(astroid1);
+                        astroid1.appendChild(hitbox2);
+
+                        let topPos = -120;
+
+                        // astroid movement
+                        let controller = setInterval(() => {
+                            topPos += 1;
+                            astroid1.style.top = topPos + "px";
+
+							container.appendChild(astroid1);
+                        	astroid1.appendChild(hitbox2);
+
+                            if (topPos > container.clientHeight) {
+                                clearInterval(controller);
+                                astroid1.remove();
+                                hitbox2.remove();
+                            }
+                        }, 5);
+
+                        activeControllers.push(controller);
+                    }, 1100);
+                }
+                
+                astroids();
+
+                // collision detector
+                function collisionDetector() {
+                    if (end) return;
+                    const hitbox1 = document.getElementById("hitbox1");
+                    const hitboxes2 = document.querySelectorAll("#hitbox2");
+
+                    if (!hitbox1) return;
+                    const box1 = hitbox1.getBoundingClientRect();
+
+                    hitboxes2.forEach(hitbox2 => {
+                        const box2 = hitbox2.getBoundingClientRect();
+
+                        if (
+                            box1.left < box2.right &&
+                            box1.right > box2.left &&
+                            box1.top < box2.bottom &&
+                            box1.bottom > box2.top
+                        ) {
+                            game_over();
+                        }
+                    });
+                }
+
+                // collision interval
+                setInterval(collisionDetector, 10);
+
+                // click detector
+                document.addEventListener("pointerdown", move);
+            }
+
+            // game over function
+            function game_over() {
+                end = true;
+
+                clearInterval(generator);
+                clearInterval(controller);
+                clearInterval(scoreInterval);
+                clearInterval(moveR);
+                clearInterval(moveL);
+                clearInterval(alternate);
+                clearInterval(spinInterval);
+
+                // Freeze all active astroids on screen
+                activeControllers.forEach(c => clearInterval(c));
+                activeControllers = [];
+
+                rocket1.style.display = "none";
+                rocket2.style.display = "none";
+                rocket3.style.display = "none";
+
+                rocket0.style.display = "block";
+
+                container.style.animationPlayState = "paused";
+
+                // fall and spin
+                let rotation = 0;
+                let topPos = 70;
+
+                start_h1.innerText = "Tap To Restart";
+                start_h1.style.display = "block";
+
+                setTimeout(() => {
+                    spinInterval = setInterval(() => {
+                        rotation += 4;
+                        topPos += 0.5;
+
+                        box.style.transform = `rotate(${rotation}deg)`;
+                        box.style.top = topPos + "%";
+
+                        // Stop spin when rocket is well off-screen
+                        if (topPos >= 120) {
+                            clearInterval(spinInterval);
+                            box.style.transform = "rotate(0deg)";
+                        }
+                    }, 16);
+                }, 200);
+
+                setTimeout(() => {
+                    document.addEventListener("pointerdown", restart, { once: true });
+                }, 300);
+            }
+
+            // score
+            function score() {
+                const score = document.getElementById("score");
+                let counter = 0;
+
+                scoreInterval = setInterval(() => {
+                    score.innerHTML = "Score: " + counter;
+                    counter++;
+                }, 400);
+            }
+
+            function restart() {
+                rocket0.style.display = "none";
+                const astroids = document.querySelectorAll(".astroid-div");
+
+                for (let i = 0; i < astroids.length; i++) {
+                    astroids[i].remove();
+                }
+
+                end = false;
+
+                let num = 105;
+
+                box.style.top = num + "%";
+
+                start();
+
+                // start
+                function start(){
+                    game();
+                    score();
+
+                    start_h1.style.display = "none";
+
+                    launch = setInterval(() => {
+                        num--;
+
+                        box.style.top = num + "%";
+
+                        // stop launch
+                        if (num <= 70) {
+                            box.style.top = "70%";
+                            clearInterval(launch);
+                        }
+                    }, 20);
+                }
+            }
+
+            function initStart() {
+                start_h1.style.display = "none";
+                game();
+                score();
+
+                let num = 105;
+                box.style.top = num + "%";
+
+                launch = setInterval(() => {
+                    num--;
+                    box.style.top = num + "%";
+
+                    // stop launch
+                    if (num <= 70) {
+                        box.style.top = "70%";
+                        clearInterval(launch);
+                    }
+                }, 20);
+            }
+
+            document.addEventListener("pointerdown", initStart, { once: true });
+        });
+    </script>
+</head>
+<body>
+    <div id="game">
+        <h3 id="score">Score: 0</h3>
+        <h1 id="start-h1"><b>Tap To Start</b></h1>
+
+        <div id="rocket-container">
+            <img src="rocket-pixel-0.png" alt="rocket-0" class="rockets" id="rocket0">
+            <img src="rocket-pixel-1.png" alt="rocket-1" class="rockets" id="rocket1">
+            <img src="rocket-pixel-2.png" alt="rocket-2" class="rockets" id="rocket2">
+            <img src="rocket-pixel-3.png" alt="rocket-3" class="rockets" id="rocket3">
+            <div id="hitbox1"></div>
+        </div>
+    </div>
+</body>
+</html>
