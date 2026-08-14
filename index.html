@@ -21,11 +21,15 @@
             font-family: Arial, Helvetica, sans-serif;
         }
 
-        #start-h1 {
+        #start-h1 , #restart-h1 , #restart-h3 {
             text-align: center;
             margin-top: 180px;
             z-index: 1000;
             position: relative;
+        }
+
+        #restart-h1 , #restart-h3 {
+            display: none;
         }
 
         #game {
@@ -115,6 +119,9 @@
             const rocket1 = document.getElementById("rocket1");
             const rocket2 = document.getElementById("rocket2");
             const rocket3 = document.getElementById("rocket3");
+
+            const restart_h1 = document.getElementById("restart-h1");
+            const restart_h3 = document.getElementById("restart-h3");
 
             let generator = null;
             let controller = null;
@@ -318,8 +325,8 @@
                 let rotation = 0;
                 let topPos = 70;
 
-                start_h1.innerText = "Tap To Restart";
-                start_h1.style.display = "block";
+                restart_h1.style.display = "block";
+                restart_h3.style.display = "block";
 
                 setTimeout(() => {
                     spinInterval = setInterval(() => {
@@ -378,6 +385,8 @@
                     score();
 
                     start_h1.style.display = "none";
+                    restart_h1.style.display = "none";
+                    restart_h3.style.display = "none";
 
                     launch = setInterval(() => {
                         launchTop--;
@@ -423,6 +432,8 @@
 <body>
     <div id="game">
         <h3 id="score">Score: 0</h3>
+        <h3 id="restart-h3">Game Over</h3>
+        <h1 id="restart-h1" style="margin-top: -4px;">Tap To Restart</h1>
         <h1 id="start-h1"><b>Tap To Start</b></h1>
 
         <div id="rocket-container">
