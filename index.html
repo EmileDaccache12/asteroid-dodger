@@ -43,11 +43,11 @@
 
         @keyframes scrollBg {
             from {
-                background-position-y: 0px;
+                background-position-y: 0;
             }
 
             to {
-                background-position-y: 800px;
+                background-position-y: calc(2 * min(100vw, 400px));
             }
         }
 
@@ -128,6 +128,68 @@
 
             let end = false;
 
+            let gameStarted = false;
+            
+            // Track rocket state outside move() so it persists across taps
+            let num = 0; 
+            let isMovingRight = false;
+
+            let moveListenerAdded = false;
+
+            // movement 
+            function move() {
+                if (end || !gameStarted) return;
+
+                clearInterval(moveR);
+                clearInterval(moveL);
+
+                // TOGGLE DIRECTION
+                isMovingRight = !isMovingRight;
+
+                if (isMovingRight) {
+                    // MOVE RIGHT INTERVAL
+                    box.style.transform = "rotate(9deg)";
+                    
+                    moveR = setInterval(() => {
+                        if (end) return;
+                        
+                        // Outer wall edge limit (Right side)
+                        const maxLeft = container.clientWidth - box.offsetWidth;
+                        num += 1;
+                        box.style.left = num + "px";
+
+                        // Trigger Game Over upon contact with right wall
+                        if (num >= maxLeft) {
+                            clearInterval(moveR);
+                            game_over();
+                        }
+                    }, 5);
+
+                } else {
+                    // MOVE LEFT INTERVAL
+                    box.style.transform = "rotate(-9deg)";
+
+                    moveL = setInterval(() => {
+                        if (end) return;
+                        
+                        num -= 1;
+                        box.style.left = num + "px";
+
+                        // Trigger Game Over upon contact with left wall
+                        if (num <= 0) {
+                            clearInterval(moveL);
+                            game_over();
+                        }
+                    }, 5);
+                }
+            }
+
+            // click detector
+            if (!moveListenerAdded) {
+                document.addEventListener("pointerdown", move);
+                moveListenerAdded = true;
+            }
+
             function game() {
                 container.style.animationPlayState = "running";
 
@@ -159,59 +221,13 @@
 
                 box.style.top = "70%";
 
-                let num = 10;
-                let isMovingRight = false;
-
+                // Center the rocket horizontally at start
+                num = (container.clientWidth - box.offsetWidth) / 2;
                 box.style.left = num + "px";
-
-                function move() {
-                    if (end) return;
-
-                    clearInterval(moveR);
-                    clearInterval(moveL);
-
-                    // TOGGLE
-                    isMovingRight = !isMovingRight;
-
-                    if (isMovingRight) {
-                        // MOVE RIGHT INTERVAL
-                        box.style.transform = "rotate(9deg)";
-                        
-                        moveR = setInterval(() => {
-                            if (end) return;
-                            const maxLeft = container.clientWidth - box.offsetWidth - 10;
-                            num += 1;
-                            box.style.left = num + "px";
-
-                            if (num >= maxLeft) {
-                                clearInterval(moveR);
-                                box.style.transform = "rotate(0deg)";
-                            }
-                        }, 5);
-
-                    } else {
-                        // MOVE LEFT INTERVAL
-                        box.style.transform = "rotate(-9deg)";
-
-                        moveL = setInterval(() => {
-                            if (end) return;
-                            num -= 1;
-                            box.style.left = num + "px";
-
-                            if (num <= 10) {
-                                clearInterval(moveL);
-                                box.style.transform = "rotate(0deg)";
-                                num = 10;
-                                box.style.left = "10px";
-                            }
-                        }, 5);
-                    }
-                }
+                isMovingRight = false;
 
                 // astroids function
                 function astroids() {
-
-                    // astroid generator
                     generator = setInterval(() => {
                         const hitbox2 = document.createElement("div");
                         hitbox2.id = "hitbox2";
@@ -233,9 +249,6 @@
 
                             container.appendChild(astroid1);
                             astroid1.appendChild(hitbox2);
-
-							container.appendChild(astroid1);
-                        	astroid1.appendChild(hitbox2);
 
                             if (topPos > container.clientHeight) {
                                 clearInterval(controller);
@@ -275,9 +288,6 @@
 
                 // collision interval
                 setInterval(collisionDetector, 10);
-
-                // click detector
-                document.addEventListener("pointerdown", move);
             }
 
             // game over function
@@ -355,10 +365,10 @@
                 box.style.transform = "rotate(0deg)";
 
                 end = false;
+                gameStarted = true;
 
-                let num = 105;
-
-                box.style.top = num + "%";
+                let launchTop = 105;
+                box.style.top = launchTop + "%";
 
                 start();
 
@@ -370,13 +380,13 @@
                     start_h1.style.display = "none";
 
                     launch = setInterval(() => {
-                        num--;
+                        launchTop--;
 
-                        box.style.top = num + "%";
+                        box.style.top = launchTop + "%";
 
                         // stop launch
-                        if (num <= 70) {
-                            box.style.top = "70%";
+                        if (launchTop <= 65) {
+                            box.style.top = "65%";
                             clearInterval(launch);
                         }
                     }, 20);
@@ -388,16 +398,19 @@
                 game();
                 score();
 
-                let num = 105;
-                box.style.top = num + "%";
+                gameStarted = true;
+                isMovingRight = false;
+
+                let launchTop = 105;
+                box.style.top = launchTop + "%";
 
                 launch = setInterval(() => {
-                    num--;
-                    box.style.top = num + "%";
+                    launchTop--;
+                    box.style.top = launchTop + "%";
 
                     // stop launch
-                    if (num <= 70) {
-                        box.style.top = "70%";
+                    if (launchTop <= 65) {
+                        box.style.top = "65%";
                         clearInterval(launch);
                     }
                 }, 20);
@@ -405,7 +418,7 @@
 
             document.addEventListener("pointerdown", initStart, { once: true });
         });
-    </script>
+</script>
 </head>
 <body>
     <div id="game">
