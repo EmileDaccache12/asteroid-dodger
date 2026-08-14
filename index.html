@@ -223,7 +223,6 @@
                         // Random X position
                         const randomX = Math.floor(Math.random() * 3) * 120;
                         astroid1.style.left = randomX + "px";
-                        
 
                         let topPos = -120;
 
@@ -231,6 +230,9 @@
                         let controller = setInterval(() => {
                             topPos += 1;
                             astroid1.style.top = topPos + "px";
+
+                            container.appendChild(astroid1);
+                            astroid1.appendChild(hitbox2);
 
 							container.appendChild(astroid1);
                         	astroid1.appendChild(hitbox2);
@@ -348,6 +350,9 @@
                 for (let i = 0; i < astroids.length; i++) {
                     astroids[i].remove();
                 }
+
+                clearInterval(spinInterval);
+                box.style.transform = "rotate(0deg)";
 
                 end = false;
 
