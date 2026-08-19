@@ -1,11 +1,11 @@
 {
     "name": "Asteroid Dodger",
     "short_name": "Asteroid Dodger",
-    "start_url": "./",
+    "start_url": "./index.html",
     "display": "standalone",
     "icons": [
         {
-            "src": "asteroid-dodger-logo.png",
+            "src": "./asteroid-dodger-logo.png",
             "sizes": "686x683",
             "type": "image/png"
         }
