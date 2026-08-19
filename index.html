@@ -1,0 +1,138 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Asteroid Dodger</title>
+    <style>
+        body {
+            margin: 0;
+            padding: 0;
+            background-color: rgb(24, 24, 24);
+            display: flex;
+            justify-content: center;
+            align-items: center;
+            min-height: 100vh;
+            overflow: hidden;
+            user-select: none;
+            -webkit-user-select: none;
+            -webkit-user-drag: none;
+            color: white;
+            font-family: Arial, Helvetica, sans-serif;
+        }
+
+        #start-h1 , #restart-h1 , #restart-h3 {
+            text-align: center;
+            margin-top: 180px;
+            z-index: 1000;
+            position: relative;
+        }
+
+        #restart-h1 , #restart-h3 {
+            display: none;
+        }
+
+        #game {
+            width: 100vw;
+            max-width: 400px;
+            height: 100vh;
+            max-height: 700px;
+            border: 2px solid rgb(47, 47, 47);
+            background: url('space-pixel-bg.png') repeat-y center top;
+            background-size: 100% auto;
+            animation: scrollBg 4.2s linear infinite;
+            animation-play-state: paused;
+            position: relative;
+        }
+
+        @keyframes scrollBg {
+            from {
+                background-position-y: 0;
+            }
+
+            to {
+                background-position-y: calc(2 * min(100vw, 400px));
+            }
+        }
+
+        #rocket-container {
+            position: absolute;
+            width: 70px;
+            height: 70px;
+            border-radius: 50%;
+        }
+
+        .rockets {
+            width: 100%;
+            height: auto;
+            display: none;
+        }
+
+        .asteroid-div {
+            position: absolute;
+            width: 130px;
+            height: 130px;
+        }
+
+        .asteroids {
+            width: 100%;
+            height: auto;
+            -webkit-user-drag: none;
+            user-select: none;
+        }
+
+        .hitbox2 {
+            z-index: 99;
+            width: 57px;
+            height: 52px;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-46%, -50%);
+            background-color: green;
+        }
+
+        #hitbox1 {
+            z-index: 99;
+            position: absolute;
+            left: 50%;
+            top: 50%;
+            transform: translate(-50%, -50%);
+            width: 40px;
+            height: 54px;
+            background-color: blue;
+        }
+
+        #score , #high-score {
+            margin: 15px;
+            z-index: 999;
+            position: absolute;
+            text-shadow: 3px 3px 4px black;
+        }
+
+        #high-score {
+            position: relative;
+        }
+    </style>
+</head>
+<body>
+    <div id="game">
+        <h3 id="high-score">High Score: <span id="high-scoreVal">0</span></h3>
+        <h3 id="score">Score: <span id="scoreVal">0</span></h3>
+
+        <h3 id="restart-h3">Game Over</h3>
+        <h1 id="restart-h1" style="margin-top: -4px;">Tap To Restart</h1>
+        <h1 id="start-h1"><b>Tap To Start</b></h1>
+
+        <div id="rocket-container">
+            <img src="rocket-pixel-0.png" alt="rocket-0" class="rockets" id="rocket0">
+            <img src="rocket-pixel-1.png" alt="rocket-1" class="rockets" id="rocket1">
+            <img src="rocket-pixel-2.png" alt="rocket-2" class="rockets" id="rocket2">
+            <img src="rocket-pixel-3.png" alt="rocket-3" class="rockets" id="rocket3">
+            <div id="hitbox1"></div>
+        </div>
+    </div>
+
+    <script src="mechanics.js"></script>
+</body>
+</html>
