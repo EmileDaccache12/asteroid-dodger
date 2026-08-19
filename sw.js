@@ -4,17 +4,17 @@ self.addEventListener("install", event => {
     event.waitUntil(
         caches.open(CACHE).then(cache => {
             return cache.addAll([
-                "/",
-                "/index.html",
-                "/mechanics.js",
-                "/manifest.json",
-                "/asteroid-dodger-logo.png",
-                "/space-pixel-bg.png",
-                "/rocket-pixel-0.png",
-                "/rocket-pixel-1.png",
-                "/rocket-pixel-2.png",
-                "/rocket-pixel-3.png",
-                "/asteroid-pixel-1.png"
+                "./",
+                "./index.html",
+                "./mechanics.js",
+                "./manifest.json",
+                "./asteroid-dodger-logo.png",
+                "./space-pixel-bg.png",
+                "./rocket-pixel-0.png",
+                "./rocket-pixel-1.png",
+                "./rocket-pixel-2.png",
+                "./rocket-pixel-3.png",
+                "./asteroid-pixel-1.png"
             ]);
         })
     );
