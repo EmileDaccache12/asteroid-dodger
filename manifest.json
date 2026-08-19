@@ -1,13 +1,17 @@
 {
     "name": "Asteroid Dodger",
     "short_name": "Asteroid Dodger",
-    "start_url": "./index.html",
+    "start_url": "./",
+    "scope": "./",
     "display": "standalone",
+    "theme_color": "#181818",
+    "background_color": "#181818",
     "icons": [
         {
             "src": "./asteroid-dodger-logo.png",
-            "sizes": "686x683",
-            "type": "image/png"
+            "sizes": "512x512",
+            "type": "image/png",
+            "purpose": "any"
         }
     ]
 }
